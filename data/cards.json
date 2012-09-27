@@ -1,0 +1,38 @@
+[
+	{
+		"name": "Foo"
+	},
+	{
+		"name": "Foo"
+	},
+	{
+		"name": "Bar"
+	},
+	{
+		"name": "Bar"
+	},
+	{
+		"name": "Baz"
+	},
+	{
+		"name": "Baz"
+	},
+	{
+		"name": "###"
+	},
+	{
+		"name": "###"
+	},
+	{
+		"name": "$$$"
+	},
+	{
+		"name": "$$$"
+	},
+	{
+		"name": "Abc"
+	},
+	{
+		"name": "Abc"
+	}
+]
