@@ -14,8 +14,8 @@
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
   
-  <style type="text/css">
-      body {
+   <style type="text/css">
+        body {
             margin: 0;
             padding: 0;
         }
@@ -58,29 +58,64 @@
         .green {
             color: #00ff00;
         }
-  </style>
+        
+        .blue {
+            color: #0000ff;
+        }
+        
+        .settingsPanel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 400px;
+            margin: -200px 0 0 -200px;
+            background: #e2e2ff;
+            border: 5px solid #ababff;
+            text-align: center;
+        }
+        
+        .new-game-btn {
+            display: block;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            margin: 0 0 0 -100px;
+            width: 200px;
+            height: 50px;
+        }
+    </style>
   
 </head>
 <body>    
-      <script type="text/x-handlebars">
-         <h1>{{Memory.version}}</h1>
+    <script type="text/x-handlebars">
+         <h1>Ember.js Memory - version: {{Memory.version}}</h1>
+         <div class="settingsPanel">
+             <h2>Settings:</h2>
+             {{view Ember.Select viewName="select"
+                          contentBinding="Memory.diffController.content"
+                          optionLabelPath="content.label"
+                          optionValuePath="content.value"
+                          prompt="select difficulty:"
+                          selectionBinding="Memory.cardController.selectedDiff"}}
+             <button class="new-game-btn" {{action "initNewGame" target="Memory.cardController"}}>start new game</button>
+         </div>
+         
     </script>    
     <div class="col left">
         <script type="text/x-handlebars">
-            <div>
-                {{view Memory.GameView}}
-            </div>
-            <button {{action "restart" target="Memory.cardController"}}>restart</button>
+            <div id='gameContainer'></div>
         </script>
    </div>
    <div class="col right">       
-            <div class="message-box"></div>     
+            <div id="message-box"></div>     
    </div>
    
    <script type="text/x-handlebars" data-template-name="Messages">
        <p {{bindAttr class="msgColor"}}>{{message}}</p>
-       <p>Score: {{score}}</p>
        <p>Tries: {{tries}}</p>
+       <button {{action "restart" target="Memory.cardController"}}>restart this game</button>
+       <button {{action "startNewGame" target="Memory.cardController"}}>start a new game</button>
    </script>
 
 
