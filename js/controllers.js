@@ -1,33 +1,4 @@
 /*
- * Application
- */
-
-var Memory = Em.Application.create({
-	version: '0.0.2',
-	ready: function(){
-		Memory.MsgView.appendTo('#message-box');
-		Memory.MyGame.appendTo('#gameContainer');
-		console.log('version: ' + this.version + "\n to do: \n    add multiplayer");
-	}
-});
-
-/*
- * Models
- */
-
-Memory.Card = Em.Object.extend({
-	name: null,
-	back: "<img src='images/back.png' />".htmlSafe(),
-	display: null,
-	open: false,
-	found: false,
-	init: function(){
-		this._super();
-		this.set('display', this.back);
-	}
-});
-
-/*
  * Controllers
  */
 
@@ -48,6 +19,10 @@ Memory.cardController = Em.ArrayController.create({
 	},
 	initNewGame: function(){
 		if (this.selectedDiff) {
+			Memory.InputFieldsController.content.forEach(function(e) {
+				e.read();
+			});
+			Memory.playerController.loadPlayers();
 			var newArray = this.toArray();
 			var len = newArray.length;
 			var diff = this.selectedDiff.get('value');
@@ -79,6 +54,7 @@ Memory.cardController = Em.ArrayController.create({
        	this.newGame();
        	Memory.pairController.clear();
         Memory.msgController.restart();
+        Memory.playerController.restart();
   	},
   	hideCards: function() {
   		this.forEach(function(e){
@@ -112,8 +88,8 @@ Memory.cardController = Em.ArrayController.create({
 			} else if (Memory.moveManager.get('currentState.name') === 'inbetweenMove'){
 				if(m.open === false){
 					this.unhideCard(m);
-					this.compare();
 					Memory.moveManager.transitionTo('newMove');
+					this.compare();
 				} 
 			}
 		}
@@ -128,9 +104,13 @@ Memory.cardController = Em.ArrayController.create({
 		if (match) {
 			Memory.pairController.matchDetected();
 			this.decrementProperty('pairsLeft');
+			var p = Memory.playerController.get('activePlayer');
+			p.incrementProperty('score');
 			if (this.pairsLeft == 0){
 				Memory.moveManager.transitionTo('gameOver');
 			}
+		} else {
+			Memory.playerController.nextPlayer();
 		} 
 	}
 });
@@ -177,7 +157,6 @@ Memory.pairController = Em.ArrayController.create({
 
 Memory.msgController = Em.Controller.create({
 	message: 'Have Fun!',
-	tries: 0,
 	msgColor: null,
 	result: function(res){
 		if(res){
@@ -193,71 +172,78 @@ Memory.msgController = Em.Controller.create({
 		this.setProperties({message: 'Try again!', msgColor: 'red'});
 	},
 	restart: function(){
-		this.setProperties({message: 'Game restarted. Have Fun!', tries: 0, msgColor: null});
+		this.setProperties({message: 'Game restarted. Have Fun!', msgColor: null});
 	},
 	newGame: function(){
-		this.setProperties({message: 'Have Fun!', tries: 0, msgColor: null});
+		this.setProperties({message: 'Have Fun!', msgColor: null});
 	}
 });
 
-
-/*
- * Views
- */
-
-Memory.GameView = Em.CollectionView.extend({
-    tagName: 'div',
-    isVisible: false,
-    content: Memory.cardController,
-    itemViewClass: Em.View.extend({
-        tagName: 'span',
-        classNames: 'single-card',
-        classNameBindings: 'this.content.found',
-        template: Em.Handlebars.compile("{{view.content.display}}"),
-        click: function(){
-            Memory.cardController.turnAround(this.content);
-        }
-    })
-}); 
-
-Memory.MyGame = Memory.GameView.create({});
-
-Memory.MsgView = Em.View.create({
-	templateName: 'Messages',
-	messageBinding: 'Memory.msgController.message',
-	triesBinding: 'Memory.msgController.tries',
-	msgColorBinding: 'Memory.msgController.msgColor',
-	isVisible: false
+Memory.PlayerCollection = Em.ArrayController.create({
+	content: ['Carl', 'John', 'Mr. Smith']
 });
 
-/*
- * State Managers
- */
-
-Memory.moveManager = Em.StateManager.create({
-	initialState: 'startGame',
-	startGame: Em.State.create({
-		enter: function(){
-			Memory.msgController.newGame();
-			Memory.pairController.clear();
-			Memory.MyGame.set('isVisible', false);
-			Memory.MsgView.set('isVisible', false);
-		},
-		exit: function(){
-			Memory.MyGame.set('isVisible', true);
-			Memory.MsgView.set('isVisible', true);
+Memory.playerController = Em.ArrayController.create({
+	content: [],
+	loadPlayers: function(){
+		var self = this;
+		Memory.PlayerCollection.content.forEach(function(e){
+			var item = Memory.Player.create({
+				name: e
+			});
+			self.pushObject(item);
+		})
+		this.start();
+		this.setPlayer();
+	},
+	start: function(){
+		this.content[0].set('turn', true);
+	},
+	getActivePlayer: function(){
+		var player = null;
+		this.content.forEach(function(e){
+	    	if (e.get('turn') === true) {
+	    		player = e;
+	    	}
+	    });
+	    return player;
+	},
+	setPlayer: function(){
+		this.set('activePlayer', this.getActivePlayer());
+	},
+	activePlayer: null,
+	now: 0,
+	nextPlayer: function(){
+		this.content[this.now].set('turn', false);
+		if (this.now < this.content.length-1){
+			this.now = this.now + 1;
+		} else {
+			this.now = 0;
 		}
-	}),
-	newGame: Em.State.create({}),
-	newMove: Em.State.create({
-		enter: function(){
-			Memory.msgController.incrementProperty('tries');
-		}
-	}),
-	inbetweenMove: Em.State.create({}),
-	gameOver: Em.State.create({
-		enter: function(){
-			Memory.msgController.setProperties({message: 'You won!', msgColor: 'blue'});
-		}
-	})
+		this.content[this.now].set('turn', true);
+		this.setPlayer();
+	},
+	restart: function(){
+		this.content.forEach(function(e){
+	    	e.setProperties({tries: 0, score: 0, turn: false, isWinner: false});
+	    });
+	    this.start();
+	},
+	result: function() {
+		var self = this;
+		var max = 0;
+		this.content.forEach(function(e){
+			if (e.get('score') > max) {
+				max = e.get('score');
+			}
+		});
+		this.content.forEach(function(e){
+			if (e.get('score') === max) {
+				e.set('isWinner', true);
+				self.set('winner', e.name);
+			}
+		});
+	},
+	winner: null
 });
+
