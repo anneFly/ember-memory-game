@@ -8,6 +8,7 @@
   <title>ember.js Test - Memory Game</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css" />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
    
 
@@ -15,108 +16,21 @@
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
   
-   <style type="text/css">
-        body {
-            margin: 0;
-            padding: 0;
-        }
-          
-        .col {
-            margin: 0;
-            padding: 5%;
-            width: 40%;
-            display: block;
-            background: #f5f5f5;
-        }
-              
-        .left {
-            float: left;
-        }  
-              
-        .right {
-            float: right;
-        }
-          
-        .single-card {
-            display: inline-block;
-            width: 50px; 
-            height: 50px; 
-            border: 1px solid #afafaf; 
-            margin: 0 20px 20px 0;
-            background: #e2e2e2; 
-            vertical-align: top;
-        }
-              
-        .found {
-            border: 1px solid green;
-            opacity: 0.5;
-        }
-        
-        .red {
-            color: #ff0000;
-        }
-        
-        .green {
-            color: #00ff00;
-        }
-        
-        .blue {
-            color: #0000ff;
-        }
-        
-        .settingsPanel {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 400px;
-            height: 400px;
-            margin: -200px 0 0 -200px;
-            background: #e2e2ff;
-            border: 5px solid #ababff;
-            text-align: center;
-        }
-        
-        .new-game-btn {
-            display: block;
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            margin: 0 0 0 -100px;
-            width: 200px;
-            height: 50px;
-        }
-        
-        .turn p {
-            color: #00ff00;
-        }
-        
-        #InputFields input {
-            display: block;
-            width: 150px;
-            margin: 2px auto;
-        }
-    </style>
-  
 </head>
-<body>    
-    <script type="text/x-handlebars">
+<body>
+    <script type="text/x-handlebars" data-template-name="Header">
          <h1>Ember.js Memory - version: {{Memory.version}}</h1>
-         <div class="settingsPanel">
-             <h2>Settings:</h2>
-             {{view Ember.Select viewName="select"
-                          contentBinding="Memory.diffController.content"
-                          optionLabelPath="content.label"
-                          optionValuePath="content.value"
-                          prompt="select difficulty:"
-                          selectionBinding="Memory.cardController.selectedDiff"}}
-             <br/>
-             <h3>players:</h3>
-             <div id="InputFields"></div>
-             <button {{action "addField" target="Memory.InputFieldsController"}}>+ add player</button>
-             <button class="new-game-btn" {{action "initNewGame" target="Memory.cardController"}}>start new game</button>
-         </div>
-         
-    </script>    
+   </script>   
+    <div id="Header"></div>
+    <div class="settings-panel">
+         <h2>Settings:</h2>
+         <h3>difficulty</h3>
+         <div id="Selection"></div>
+         <br/>
+         <h3>players:</h3>
+         <div id="InputFields"></div>
+         <div id="Buttons"></div>
+    </div>
     <div class="col left">
         <div id='gameContainer'></div>
         <div id="message-box"></div>     
@@ -125,6 +39,11 @@
    <div class="col right">
         <div id="player-box"></div>       
    </div>
+
+    <script type="text/x-handlebars" data-template-name="Settings">
+         <button {{action "addField" target="Memory.inputFieldsController"}}>+ add player</button>
+         <button class="new-game-btn" {{action "initNewGame" target="Memory.cardController"}}>start new game</button>
+    </script>
    
    <script type="text/x-handlebars" data-template-name="Messages">
        <p {{bindAttr class="msgColor"}}>{{message}}</p>
@@ -139,7 +58,8 @@
    </script>
 
   <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0.beta6/handlebars.min.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/ember.js/1.0.pre/ember-1.0.pre.min.js"></script>
+  <!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/ember.js/1.0.pre/ember-1.0.pre.min.js"></script> -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/ember.js/1.0.0-pre.2/ember-1.0.0-pre.2.js"></script>
   <script src="js/app.js"></script>
   <script src="js/models.js"></script>
   <script src="js/controllers.js"></script>

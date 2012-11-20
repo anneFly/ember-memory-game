@@ -1,7 +1,6 @@
 /*
  * Views
  */
-
 Memory.NameTextField = Em.TextField.extend({
 	placeholder: 'enter name',
 	read: function(){
@@ -12,18 +11,36 @@ Memory.NameTextField = Em.TextField.extend({
 	}
 });
 
-Memory.InputFieldsController = Em.ArrayController.create({
+Memory.inputFieldsController = Em.ArrayController.create({
 	content: [],
 	init: function(){
 		this._super();
 		this.pushObject(Memory.NameTextField.create({}));
 	},
-	addField: function(){
+	addField: function(n){
 		var newField = Memory.NameTextField.create({})
 		this.pushObject(newField);
 		newField.appendTo('#InputFields');
 	}
 });
+
+Memory.MySelection = Em.Select.create({
+	viewName: "select",
+  	contentBinding: "Memory.diffController.content",
+  	optionLabelPath: "content.label",
+  	optionValuePath: "content.value",
+  	prompt: "select difficulty:",
+  	selectionBinding: "Memory.cardController.selectedDiff"
+});
+
+Memory.MySettings = Em.View.create({
+	templateName: 'Settings'
+});
+
+Memory.MyHeader = Em.View.create({
+	templateName: 'Header'
+});
+
 
 Memory.GameView = Em.CollectionView.extend({
     tagName: 'div',
@@ -47,6 +64,7 @@ Memory.PlayerView = Em.CollectionView.extend({
 	content: Memory.playerController,
 	itemViewClass: Em.View.extend({
 		classNameBindings: 'this.content.turn',
+		classNames: ['single-player'],
 		templateName: 'Players'
 	})
 });
@@ -60,4 +78,3 @@ Memory.MsgView = Em.View.create({
 	msgColorBinding: 'Memory.msgController.msgColor',
 	isVisible: false
 });
-

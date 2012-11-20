@@ -19,23 +19,27 @@ Memory.cardController = Em.ArrayController.create({
 	},
 	initNewGame: function(){
 		if (this.selectedDiff) {
-			Memory.InputFieldsController.content.forEach(function(e) {
+			Memory.inputFieldsController.content.forEach(function(e) {
 				e.read();
 			});
-			Memory.playerController.loadPlayers();
-			var newArray = this.toArray();
-			var len = newArray.length;
-			var diff = this.selectedDiff.get('value');
-			if (diff === 1){
-				newArray = newArray.slice(len-(len/3));
-			} else if (diff === 2) {
-				newArray = newArray.slice(len/2);
-			} else if (diff === 3) {
-				newArray = newArray.slice(0);
+			if (Memory.PlayerCollection.content.length <= 0) {
+				console.log('please enter player name');
+			} else {
+				Memory.playerController.loadPlayers();
+				var newArray = this.toArray();
+				var len = newArray.length;
+				var diff = this.selectedDiff.get('value');
+				if (diff === 1){
+					newArray = newArray.slice(len-(len/3));
+				} else if (diff === 2) {
+					newArray = newArray.slice(len/2);
+				} else if (diff === 3) {
+					newArray = newArray.slice(0);
+				}
+				this.set('content', newArray);
+				this.newGame();
+				$('.settings-panel').hide();
 			}
-			this.set('content', newArray);
-			this.newGame();
-			$('.settingsPanel').hide();
 		}
 	},
 	newGame: function(){
@@ -45,7 +49,7 @@ Memory.cardController = Em.ArrayController.create({
 	},
 	startNewGame: function(){
 		this.set('content', this.deck);
-		$('.settingsPanel').show();
+		$('.settings-panel').show();
 	  	this.hideCards();
 	  	Memory.moveManager.transitionTo('startGame');
   	},
@@ -246,4 +250,3 @@ Memory.playerController = Em.ArrayController.create({
 	},
 	winner: null
 });
-
